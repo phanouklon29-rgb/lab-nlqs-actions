@@ -1,7 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+/** Accepts common copy-paste variants and returns https://<ref>.supabase.co */
+function normalizeUrl(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  let u = raw.trim().replace(/^["']|["']$/g, '');
+  // Dashboard address pasted by mistake: https://supabase.com/dashboard/project/<ref>/...
+  const dash = u.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)/i);
+  if (dash) return `https://${dash[1]}.supabase.co`;
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  try {
+    return new URL(u).origin; // drops /rest/v1/, /auth/v1, trailing slashes, query strings
+  } catch {
+    return u;
+  }
+}
+
+const url = normalizeUrl(import.meta.env.VITE_SUPABASE_URL as string | undefined);
+const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim().replace(/^["']|["']$/g, '');
 
 export const configError =
   !url || !anonKey
