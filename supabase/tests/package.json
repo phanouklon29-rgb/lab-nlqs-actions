@@ -1,0 +1,7 @@
+{
+  "name": "lab-nlqs-actions-db-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node workflow.test.mjs" },
+  "devDependencies": { "@electric-sql/pglite": "^0.5.11" }
+}
